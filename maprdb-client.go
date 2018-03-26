@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 type User struct {
@@ -36,10 +37,24 @@ func main() {
 	password := *fPassword
 	table := *fTable
 	condition := *fCondition
+	drop := *fDrop
+	create := *fCreate
 
 	fmt.Println(" \n\n====  Start  Application ====\n Server : ", maprRestServer)
 
 	var token = authenticateUser(maprRestServer, username, password)
+
+	if drop || create {
+
+		action := "create"
+		if drop {
+			action = "drop"
+		}
+
+		// Create or Drop table
+		tableOperation(maprRestServer, token, table, action)
+		os.Exit(0)
+	}
 
 	insertOrReplaceSampleUsers(maprRestServer, token, table)
 
@@ -93,9 +108,59 @@ func authenticateUser(maprServer string, username string, password string) (toke
 		log.Fatal(err2)
 	}
 
+	if res.StatusCode < 200 || res.StatusCode >= 299 {
+		fmt.Println("Error ", res.StatusCode, string(bodyContent))
+		os.Exit(res.StatusCode)
+	}
+
 	json.Unmarshal([]byte(bodyContent), &token)
 
 	return
+
+}
+
+func tableOperation(maprServer string, token JWToken, table string, action string) {
+
+	fmt.Println("\n\n===================================")
+	fmt.Println("===      tableOperation()        ==")
+
+	var buffer bytes.Buffer
+	buffer.WriteString(maprServer)
+	buffer.WriteString("/api/v2/table/")
+	buffer.WriteString(url.QueryEscape(table))
+
+	client := &http.Client{}
+
+	httpVerb := http.MethodPut
+
+	if action == "drop" {
+		httpVerb = http.MethodDelete
+	}
+
+	req, err := http.NewRequest(httpVerb, buffer.String(), nil)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token.Token))
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+
+	bodyContent, err2 := ioutil.ReadAll(res.Body)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 299 {
+		fmt.Println("Error ", res.StatusCode, string(bodyContent))
+		os.Exit(res.StatusCode)
+	}
+
+	fmt.Printf("\t Table %s\n===================================\n", action)
 
 }
 
@@ -134,6 +199,16 @@ func insertOrReplaceSampleUsers(maprServer string, token JWToken, table string) 
 	}
 	defer res.Body.Close()
 
+	bodyContent, err2 := ioutil.ReadAll(res.Body)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 299 {
+		fmt.Println("Error ", res.StatusCode, string(bodyContent))
+		os.Exit(res.StatusCode)
+	}
+
 	fmt.Println("==    Users inserted/updated    ==")
 	fmt.Println("===================================")
 
@@ -166,6 +241,11 @@ func querySimpleUser(maprServer string, token JWToken, table string, id string) 
 	bodyContent, err2 := ioutil.ReadAll(res.Body)
 	if err2 != nil {
 		log.Fatal(err2)
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 299 {
+		fmt.Println("Error ", res.StatusCode, string(bodyContent))
+		os.Exit(res.StatusCode)
 	}
 
 	var user001 User
@@ -217,6 +297,11 @@ func getMultipleUsers(maprServer string, token JWToken, table string, condition 
 		log.Fatal(err2)
 	}
 
+	if res.StatusCode < 200 || res.StatusCode >= 299 {
+		fmt.Println("Error ", res.StatusCode, string(bodyContent))
+		os.Exit(res.StatusCode)
+	}
+
 	json.Unmarshal([]byte(bodyContent), &result)
 
 	fmt.Println("result %s ", result)
@@ -258,6 +343,16 @@ func insertOrReplaceUser(maprServer string, token JWToken, table string, newUser
 	}
 	defer res.Body.Close()
 
+	bodyContent, err2 := ioutil.ReadAll(res.Body)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 299 {
+		fmt.Println("Error ", res.StatusCode, string(bodyContent))
+		os.Exit(res.StatusCode)
+	}
+
 	fmt.Println("===================================")
 
 }
@@ -294,6 +389,16 @@ func updateUserAge(maprServer string, token JWToken, table string, id string, ag
 	}
 	defer res.Body.Close()
 
+	bodyContent, err2 := ioutil.ReadAll(res.Body)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 299 {
+		fmt.Println("Error ", res.StatusCode, string(bodyContent))
+		os.Exit(res.StatusCode)
+	}
+
 	fmt.Println("===================================")
 
 }
@@ -322,6 +427,16 @@ func deleteUser(maprServer string, token JWToken, table string, id string) {
 	}
 	defer res.Body.Close()
 
+	bodyContent, err2 := ioutil.ReadAll(res.Body)
+	if err2 != nil {
+		log.Fatal(err2)
+	}
+
+	if res.StatusCode < 200 || res.StatusCode >= 299 {
+		fmt.Println("Error ", res.StatusCode, string(bodyContent))
+		os.Exit(res.StatusCode)
+	}
+
 	fmt.Println("===================================")
 
 }
@@ -331,3 +446,5 @@ var fUsername = flag.String("user", "mapr", "Username")
 var fPassword = flag.String("password", "", "Password")
 var fTable = flag.String("table", "/apps/employee", "Table path")
 var fCondition = flag.String("condition", "", "OJAI JSON Condition used by  getMultipleUsers function")
+var fCreate = flag.Bool("create", false, "Create Table")
+var fDrop = flag.Bool("drop", false, "Drop Table")
