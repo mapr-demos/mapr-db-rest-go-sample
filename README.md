@@ -58,7 +58,7 @@ Usage of mapr-db-go:
   -password string
         Password
   -server string
-        MapR-DB REST API Server (default "http://localhost:8085")
+        MapR-DB REST API Server (default "https://localhost:8243")
   -table string
         Table path (default "/apps/employee")
   -user string
@@ -71,13 +71,13 @@ Usage of mapr-db-go:
 The following command will create a table if does not already exist, and return an error if the table already exists.
 
 ```
-$ mapr-db-go --server http://mapr-node:8085 --user mapr --password mapr --table /apps/emp --create
+$ mapr-db-go --server https://mapr-node:8243 --user mapr --password mapr --table /apps/emp --create
 ```
 
 2.2 Run the full application
 
 ```
-$ mapr-db-go --server http://mapr-node:8085 --user mapr --password mapr --table /apps/emp 
+$ mapr-db-go --server https://mapr-node:8243 --user mapr --password mapr --table /apps/emp 
 ```
 
 This command will run all operations contains in the application:
@@ -92,7 +92,7 @@ This command will run all operations contains in the application:
 2.3 Query with a specific OJAI Condition
 
 ```
-$ mapr-db-go --server http://mapr-node:8085 --user mapr --password mapr --table /apps/emp --condition '{"$eq":{"last_name":"Doe"}}'
+$ mapr-db-go --server https://mapr-node:8243 --user mapr --password mapr --table /apps/emp --condition '{"$eq":{"last_name":"Doe"}}'
 ```
 
 This command will run the same commands as before, but the it will return the multiple users based on the condition.
@@ -103,7 +103,7 @@ This command will run the same commands as before, but the it will return the mu
 You can drop the table usinf the following command:
 
 ```
-$ mapr-db-go --server http://mapr-node:8085 --user mapr --password mapr --table /apps/emp --drop
+$ mapr-db-go --server https://mapr-node:8243 --user mapr --password mapr --table /apps/emp --drop
 ```
 
 
@@ -142,7 +142,7 @@ The authenticateUser function has the following signature:
 * `password`: the MapR user password
 * `token`: the return value, a JSON Web Token that will be used in sub sequent HTTP requests.
 
-The `buffer.String()` contains the REST API URL for authentication, that looks like: ` http://mapr-node:8085/auth/v2/token`
+The `buffer.String()` contains the REST API URL for authentication, that looks like: `https://localhost:8243/auth/v2/token`
 
 
 ### Insert documents in MapR-DB Table
@@ -217,7 +217,7 @@ res, err := client.Do(req)
 
 Let's look at the code above in detail:
 
-* The first 4 lines are used to create the URL to use to post new document into the table. This will look like `http://mapr-node:8085/api/v2/table/%2Fapps%2Femp`
+* The first 4 lines are used to create the URL to use to post new document into the table. This will look like `https://localhost:8243/api/v2/table/%2Fapps%2Femp`
 * Then the HTTP request is prepared using `http.NewRequest(http.MethodPost, buffer.String(), bytes.NewBuffer(jsonObject))`
     * The first parameter is set do an HTTP POST
     * The second parameter is the URL of the operation
@@ -278,12 +278,12 @@ res, err := client.Do(req)
 ...
 ```
 
-The first 4 lines are used to create the URL to get documents from the table, something that will look like `http://mapr-node:8085/api/v2/table/%2Fapps%2Femp`
+The first 4 lines are used to create the URL to get documents from the table, something that will look like `https://localhost:8243/api/v2/table/%2Fapps%2Femp`
 
 The if a condition is present, the query parameter is added to build something like:
 
 ```
-http://mapr-node:8085/api/v2/table/%2Fapps%2Femp?condition={"$eq":{"last_name":"Doe"}}
+https://mapr-node:8243/api/v2/table/%2Fapps%2Femp?condition={"$eq":{"last_name":"Doe"}}
 ```
 
 Then you just have to use the Go HTTP library to do the call.

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -92,6 +93,7 @@ func authenticateUser(maprServer string, username string, password string) (toke
 	buffer.WriteString(maprServer)
 	buffer.WriteString("/auth/v2/token")
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 	req, err := http.NewRequest(http.MethodPost, buffer.String(), nil)
 	req.SetBasicAuth(username, password)
@@ -129,6 +131,7 @@ func tableOperation(maprServer string, token JWToken, table string, action strin
 	buffer.WriteString("/api/v2/table/")
 	buffer.WriteString(url.QueryEscape(table))
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 
 	httpVerb := http.MethodPut
@@ -187,6 +190,7 @@ func insertOrReplaceSampleUsers(maprServer string, token JWToken, table string) 
 	buffer.WriteString("/api/v2/table/")
 	buffer.WriteString(url.QueryEscape(table))
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 
 	req, err := http.NewRequest(http.MethodPost, buffer.String(), bytes.NewBuffer(jsonObject))
@@ -226,6 +230,7 @@ func querySimpleUser(maprServer string, token JWToken, table string, id string) 
 	buffer.WriteString("/document/")
 	buffer.WriteString(id)
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 
 	req, err := http.NewRequest(http.MethodGet, buffer.String(), nil)
@@ -278,6 +283,7 @@ func getMultipleUsers(maprServer string, token JWToken, table string, condition 
 
 	fmt.Println(buffer.String())
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 
 	req, err := http.NewRequest(http.MethodGet, buffer.String(), nil)
@@ -331,6 +337,7 @@ func insertOrReplaceUser(maprServer string, token JWToken, table string, newUser
 		log.Fatal(errorJSON)
 	}
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 
 	req, err := http.NewRequest(http.MethodPost, buffer.String(), bytes.NewBuffer(jsonObject))
@@ -377,6 +384,7 @@ func updateUserAge(maprServer string, token JWToken, table string, id string, ag
 	fmt.Println(buffer.String())
 	fmt.Println(bufferMutation.String())
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 
 	req, err := http.NewRequest(http.MethodPost, buffer.String(), bytes.NewReader(bufferMutation.Bytes()))
@@ -415,6 +423,7 @@ func deleteUser(maprServer string, token JWToken, table string, id string) {
 	buffer.WriteString("/document/")
 	buffer.WriteString(id)
 
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 
 	req, err := http.NewRequest(http.MethodDelete, buffer.String(), nil)
@@ -441,7 +450,7 @@ func deleteUser(maprServer string, token JWToken, table string, id string) {
 
 }
 
-var fServer = flag.String("server", "http://localhost:8085", "MapR-DB REST API Server")
+var fServer = flag.String("server", "https://localhost:8243", "MapR-DB REST API Server")
 var fUsername = flag.String("user", "mapr", "Username")
 var fPassword = flag.String("password", "", "Password")
 var fTable = flag.String("table", "/apps/employee", "Table path")
