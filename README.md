@@ -118,6 +118,7 @@ Before doing any operation on MapR-DB tables, the application must create an aut
 ```golang
 func authenticateUser(maprServer string, username string, password string) (token JWToken) {
     ...
+    http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}    
     client := &http.Client{}
 	req, err := http.NewRequest(http.MethodPost, buffer.String(), nil)
     req.SetBasicAuth(username, password)
@@ -205,6 +206,7 @@ buffer.WriteString(maprServer)
 buffer.WriteString("/api/v2/table/")
 buffer.WriteString(url.QueryEscape(table))
 
+http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 client := &http.Client{}
 
 req, err := http.NewRequest(http.MethodPost, buffer.String(), bytes.NewBuffer(jsonObject))
@@ -269,6 +271,7 @@ if condition != "" {
 
 fmt.Println(buffer.String())
 
+http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 client := &http.Client{}
 
 req, err := http.NewRequest(http.MethodGet, buffer.String(), nil)
