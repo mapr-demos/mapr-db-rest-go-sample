@@ -1,6 +1,23 @@
-# Getting started with MapR-DB JSON REST API
-
-
+---
+{
+    "authorDisplayName": "Tugdual Grall",
+    "category": "mapr-platform",
+    "collection": "blog",
+    "disqus": {
+        "developer": 1,
+        "domain": "maprblog",
+        "identifier": "getting-started-with-mapr-db-json-rest-api",
+        "status": true,
+        "title": "Getting started with MapR-DB JSON REST API",
+        "url": "https://mapr.com/blog/getting-started-with-mapr-db-json-rest-api/"
+    },
+    "featuredImage": "assets/mapr.png",
+    "layout": "blog-item.html",
+    "locale": "en",
+    "publish": "2018-04-09T12:00:00.000",
+    "title": "Getting started with MapR-DB JSON REST API"
+}
+---
 
 ## Introduction
 
@@ -31,18 +48,20 @@ The easiest way to discover it, is to use `curl` command (or equivalent).
 
 ```
 curl -X PUT \
-  'http://mapr-node:8085/api/v2/table/%2Fapps%2Femp' \
-  -u root:mapr
+  'https://mapr-node:8243/api/v2/table/%2Fapps%2Femp' \
+  -u root:mapr \
+  -k 
 
 ```
 
 In this command:
 
-* the MapR-DB REST Service (MapR Data Access Gateway) is running on the `mapr-node` host with the default port `8085`
+* the MapR-DB REST Service (MapR Data Access Gateway) is running on the `mapr-node` host with the default port `8243` using HTTPS
 * the HTTP verb `PUT` on `/api/v2/table/` endoint creates a new table
 * the protocol is HTTP since HTTPS is not enabled on this cluster
 * the new table will be created wit the path  `/apps/emp` that is encoded to `%2Fapps%2Femp`
-* the user `root` with the password `mapr` is used  for authentication, using basic authentication.
+* the user `root` with the password `mapr` is used  for authentication, using basic authentication
+* the `-k' parameter is used to indicate to turn off curl's verification of the certificate. 
 
 In this example, you use the basic authentication, it is also possible to use [JSON Web Token](https://jwt.io/introduction/). You will learn more about this when you will write an application in Go.
 
@@ -52,10 +71,11 @@ Insert one document
 
 ```
 curl -X POST \
-  'http://mapr-node:8085/api/v2/table/%2Fapps%2Femp' \
+  'https://mapr-node:8243/api/v2/table/%2Fapps%2Femp' \
   -u root:mapr \
   -H 'Content-Type: application/json' \
-  -d '{"_id":"user001","first_name":"John","last_name":"Doe", "age" : 28}'
+  -d '{"_id":"user001","first_name":"John","last_name":"Doe", "age" : 28}' \
+  -k
 ```
 
 In this command:
@@ -69,14 +89,15 @@ Insert multiple documents
 
 ```
 curl -X POST \
-  'http://mapr-node:8085/api/v2/table/%2Fapps%2Femp' \
+  'https://mapr-node:8243/api/v2/table/%2Fapps%2Femp' \
   -u root:mapr \
   -H 'Content-Type: application/json' \
   -d '[ 
      {"_id":"user002","first_name":"Jane","last_name":"Doe", "age" : 30}, 
      {"_id":"user003","first_name":"Simon","last_name":"Davis", "age" : 43}, 
      {"_id":"user004","first_name":"Paul","last_name":"Duran", "age" : 37}
-   ]'
+   ]' \
+  -k
 ```
 
 **3 - Query Documents**
@@ -85,8 +106,9 @@ Query document by `_id`
 
 ```
 curl -X GET \
-  'http://mapr-node:8085/api/v2/table/%2Fapps%2Femp%2F/document/user001' \
-  -u root:mapr 
+  'https://mapr-node:8243/api/v2/table/%2Fapps%2Femp%2F/document/user001' \
+  -u root:mapr \
+  -k
 ```
 
 In this command:
@@ -102,8 +124,9 @@ You can also query document using condition using the following command:
 
 ```
 curl -g -X GET \
-'http://mapr-node:8085/api/v2/table/%2Fapps%2Femp?condition={"$eq":{"last_name":"Doe"}}' \
-  -u root:mapr
+  'https://mapr-node:8243/api/v2/table/%2Fapps%2Femp?condition={"$eq":{"last_name":"Doe"}}' \
+  -u root:mapr \
+  -k
 ```
 
 In this command:
@@ -118,10 +141,11 @@ The following example will increment the age by 1 and update the last name.
 
 ```
 curl -X POST \
-  'http://mapr-node:8085/api/v2/table/%2Fapps%2Femp%2F/document/user001' \
+  'https://mapr-node:8243/api/v2/table/%2Fapps%2Femp%2F/document/user001' \
   -u root:mapr \
   -H 'Content-Type: application/json' \
-  -d '{"$set" : {"last_name" : "New Doe"}, "$increment" : {"age":1}}'
+  -d '{"$set" : {"last_name" : "New Doe"}, "$increment" : {"age":1}}' \
+  -k 
 ```
 
 In this comamnd:
@@ -135,8 +159,9 @@ You can check that the document has been updated using the following command:
 
 ```
 curl -X GET \
-  'http://mapr-node:8085/api/v2/table/%2Fapps%2Femp%2F/document/user001' \
-  -u root:mapr 
+  'https://mapr-node:8243/api/v2/table/%2Fapps%2Femp%2F/document/user001' \
+  -u root:mapr \
+  -k
 ```
 
 
@@ -146,8 +171,9 @@ Delete the document with the `_id` user001.
 
 ```
 curl -X DELETE \
-  'http://mapr-node:8085/api/v2/table/%2Fapps%2Femp%2F/document/user001' \
-  -u root:mapr 
+  'https://mapr-node:8243/api/v2/table/%2Fapps%2Femp%2F/document/user001' \
+  -u root:mapr \
+  -k
 ```
 
 
@@ -161,8 +187,9 @@ The last step of this tutorial is to delete the table using the following comman
 
 ```
 curl -X DELETE \
-  'http://mapr-node:8085/api/v2/table/%2Fapps%2Femp' \
-  -u root:mapr 
+  'https://mapr-node:8243/api/v2/table/%2Fapps%2Femp' \
+  -u root:mapr \
+  -k
 ```
 
 
@@ -177,7 +204,6 @@ In this tutorial you have learned how to use the MapR-DB JSON REST API to:
 
 
 You can now use the API to create MapR-DB JSON Application using your favorite language.
-
 
 
 
