@@ -1,23 +1,4 @@
----
-{
-    "authorDisplayName": "Tugdual Grall",
-    "category": "mapr-platform",
-    "collection": "blog",
-    "disqus": {
-        "developer": 1,
-        "domain": "maprblog",
-        "identifier": "getting-started-with-mapr-db-json-rest-api",
-        "status": true,
-        "title": "Getting started with MapR-DB JSON REST API",
-        "url": "https://mapr.com/blog/getting-started-with-mapr-db-json-rest-api/"
-    },
-    "featuredImage": "assets/mapr.png",
-    "layout": "blog-item.html",
-    "locale": "en",
-    "publish": "2018-04-09T12:00:00.000",
-    "title": "Getting started with MapR-DB JSON REST API"
-}
----
+# Getting started with MapR-DB JSON REST API
 
 ## Introduction
 
